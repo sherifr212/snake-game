@@ -6,16 +6,16 @@ var Direction;
     Direction[Direction["Left"] = 3] = "Left";
 })(Direction || (Direction = {}));
 var DirectionMap = [
-    -1,
-    +1,
-    +1,
-    -1
+    -1, /* Up */
+    +1, /* Down */
+    +1, /* Right */
+    -1 /* Left */
 ];
-var SnakeGame = (function () {
+var SnakeGame = /** @class */ (function () {
     function SnakeGame() {
         this.snake = [];
         this.snakeSize = 6;
-        this.lastDirection = 2 /* Right */;
+        this.lastDirection = Direction.Right;
         this.isGameOver = false;
         this.score = 0;
     }
@@ -26,11 +26,14 @@ var SnakeGame = (function () {
     };
     SnakeGame.prototype.create = function (game) {
         var i;
+        // Initial body contains 3 beads + the head bead
+        // 0:body  1:body  2:body  3:head  ,for example.
         for (i = 0; i < this.snakeSize; i++) {
-            var bead = new Bead((i == this.snakeSize - 1), Bead.BeadSpriteSize * i, 0, 2 /* Right */, false);
+            var bead = new Bead((i == this.snakeSize - 1), Bead.BeadSpriteSize * i, 0, Direction.Right, false);
             bead.addToGame(game);
             this.snake.push(bead);
         }
+        // Set the bead pointer to the next bead, head will be null
         for (i = 0; i < this.snakeSize - 1; i++)
             this.snake[i].nextBead = this.snake[i + 1];
         this.snake[i].nextBead = null;
@@ -54,22 +57,24 @@ var SnakeGame = (function () {
         var cursors = game.input.keyboard.createCursorKeys();
         // Identify the key pressed direction and reject if it is a not allowed move
         if (cursors.down.justDown) {
-            if (this.lastDirection != 0 /* Up */)
-                this.lastDirection = 1 /* Down */;
+            if (this.lastDirection != Direction.Up)
+                this.lastDirection = Direction.Down;
         }
         else if (cursors.up.justDown) {
-            if (this.lastDirection != 1 /* Down */)
-                this.lastDirection = 0 /* Up */;
+            if (this.lastDirection != Direction.Down)
+                this.lastDirection = Direction.Up;
         }
         else if (cursors.right.justDown) {
-            if (this.lastDirection != 3 /* Left */)
-                this.lastDirection = 2 /* Right */;
+            if (this.lastDirection != Direction.Left)
+                this.lastDirection = Direction.Right;
         }
         else if (cursors.left.justDown) {
-            if (this.lastDirection != 2 /* Right */)
-                this.lastDirection = 3 /* Left */;
+            if (this.lastDirection != Direction.Right)
+                this.lastDirection = Direction.Left;
         }
         var snakeHead = this.snake[0];
+        // Start at bead number 2 after the head bead,
+        // because it is not possible to collide with beads number 1 and 2.
         for (var i = 2; i < this.snakeSize; i++) {
             if (snakeHead.collideWith(this.snake[i])) {
                 this.gameOver();
@@ -130,5 +135,4 @@ var SnakeGame = (function () {
         return randomInt - (randomInt % Bead.BeadSpriteSize);
     };
     return SnakeGame;
-})();
-//# sourceMappingURL=SnakeGame.js.map
+}());
